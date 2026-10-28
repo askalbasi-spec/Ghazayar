@@ -1,0 +1,7 @@
+plugins { id 'com.android.application' }
+android {
+ namespace 'ir.ghazayar.app'
+ compileSdk 35
+ defaultConfig { applicationId 'ir.ghazayar.app'; minSdk 23; targetSdk 35; versionCode 1; versionName '1.0.0' }
+ buildTypes { debug {}; release { minifyEnabled false } }
+}
