@@ -96,3 +96,13 @@ body{background:var(--bg,#f6f8f6);font-size:1rem;font-weight:var(--user-font-wei
 button,input,select,textarea{font-size:0.95rem!important}
 .view p,.panel p,.panel li,.day-card,.meal-pick,.selected-item,.suggestion-row{line-height:1.9}
 #avatarPreview img{border:3px solid var(--green-soft);padding:2px}
+
+/* Ghazayar readability and settings update */
+:root{font-size:calc(16px * var(--user-font-scale,1.12))}
+body{font-weight:var(--user-font-weight,600);color:var(--user-font-color,var(--ink));font-family:var(--user-font-family,Vazirmatn,Tahoma,sans-serif)}
+button,input,select,textarea{font-size:1rem!important;font-weight:600}
+.nav-item,.quick-card small,.stat-card small,.recipe-card p,.muted,.hint,.form-grid label,.party-suggestion-text small,.mini-recipe small{font-size:.92rem}
+.dashboard-backup-panel{border-color:#d9e8fb;background:linear-gradient(120deg,#f7fbff,#fff)}
+.avatar-preview{display:block;min-height:10px;margin-top:8px}
+.avatar-preview img{width:76px;height:76px;border-radius:50%;object-fit:cover;border:2px solid #dce8f8}
+@media(max-width:640px){.dashboard-backup-panel .menu-actions button{flex:1}.form-grid label{min-width:0}}
