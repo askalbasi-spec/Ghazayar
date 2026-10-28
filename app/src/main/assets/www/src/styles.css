@@ -87,3 +87,12 @@
 
 /* Navigation, report sharing and privacy policy additions */
 .back-btn{white-space:nowrap;font-weight:700}.privacy-document{max-width:980px;margin:12px auto 24px;padding:clamp(18px,4vw,36px);line-height:2.15;color:#30483c}.privacy-document h2{color:var(--green);font-size:20px;margin:14px 0 8px}.privacy-document h3{color:#286b54;font-size:14px;margin:20px 0 5px}.privacy-document p{font-size:13px;line-height:2.2}.privacy-updated{display:inline-block;background:#eef7f0;border:1px solid #d8e9dc;color:#426a54;border-radius:20px;padding:5px 12px;font-size:11px}.support-email{font-size:18px;font-weight:800;direction:ltr;text-align:right}.support-email a,footer a{color:var(--green);text-decoration:none}.support-email a:hover,footer a:hover{text-decoration:underline}.report-actions{display:flex;gap:8px;flex-wrap:wrap}.report-actions button{border-radius:9px}.report-actions button[data-share-report]{background:#edf7f0;border-color:#cde4d3;color:#176b55}@media(max-width:640px){.back-btn{font-size:11px;padding:7px 9px}.privacy-document{padding:16px}.report-actions button{flex:1}}
+
+/* خوانایی و تنظیمات ظاهری قابل شخصی‌سازی */
+:root{font-size:calc(16px * var(--user-font-scale,1.08));--ink:var(--user-font-color,#20352e);--user-font-family:Vazirmatn, Tahoma, sans-serif}
+body,button,input,select,textarea{font-family:var(--user-font-family);color:var(--user-font-color,var(--ink))}
+body{background:var(--bg,#f6f8f6);font-size:1rem;font-weight:var(--user-font-weight,600)}
+.nav-item,.quick-card small,.stat-card small,.recipe-card p,.muted,.hint,.form-grid label,.party-suggestion-text small,.mini-recipe small{font-size:0.88rem}
+button,input,select,textarea{font-size:0.95rem!important}
+.view p,.panel p,.panel li,.day-card,.meal-pick,.selected-item,.suggestion-row{line-height:1.9}
+#avatarPreview img{border:3px solid var(--green-soft);padding:2px}
