@@ -1,4 +1,4 @@
-const CACHE='ghazayar-app-v12';
+const CACHE='ghazayar-app-v13';
 const ASSETS=['./','./index.html','./src/styles.css','./src/app.js','./manifest.webmanifest'];
 self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)).catch(()=>{}));self.skipWaiting()});
 self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))));self.clients.claim()});
