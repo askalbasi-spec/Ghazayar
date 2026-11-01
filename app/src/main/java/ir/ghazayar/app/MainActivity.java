@@ -40,7 +40,7 @@ public class MainActivity extends Activity {
                     intent.setType("application/json");
                     intent.putExtra(Intent.EXTRA_TITLE, filename);
                     try { startActivityForResult(intent, BACKUP_SAVE_REQUEST); }
-                    catch (Exception e) { pendingBackupContent = null; Toast.makeText(MainActivity.this, "انتخاب محل ذخیره ممکن نشد", Toast.LENGTH_SHORT).show(); }
+                    catch (Exception e) { pendingBackupContent = null; webView.evaluateJavascript("window.GhazayarBackupResult && window.GhazayarBackupResult(false)", null); }
                 });
             }
             @JavascriptInterface public void shareText(String text) {
@@ -115,11 +115,12 @@ public class MainActivity extends Activity {
                 try (OutputStream out = getContentResolver().openOutputStream(d.getData())) {
                     if (out == null) throw new Exception("No output stream");
                     out.write(pendingBackupContent.getBytes(StandardCharsets.UTF_8));
-                    Toast.makeText(this, "فایل پشتیبان ذخیره شد", Toast.LENGTH_LONG).show();
+                    webView.evaluateJavascript("window.GhazayarBackupResult && window.GhazayarBackupResult(true)", null);
                 } catch (Exception e) {
-                    Toast.makeText(this, "ذخیره فایل پشتیبان ناموفق بود", Toast.LENGTH_LONG).show();
+                    webView.evaluateJavascript("window.GhazayarBackupResult && window.GhazayarBackupResult(false)", null);
                 }
             }
+            if (c != RESULT_OK) webView.evaluateJavascript("window.GhazayarBackupResult && window.GhazayarBackupResult(false)", null);
             pendingBackupContent = null;
         }
     }
