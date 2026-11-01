@@ -86,24 +86,25 @@
 @media(max-width:440px){.nutrition-metric-grid{grid-template-columns:1fr}.history-actions button{flex:1}}
 
 /* انتخابگر کشویی و قابل پیمایش غذا در برنامه هفتگی */
-.meal-picker-overlay{position:fixed;inset:0;z-index:10000;background:rgba(18,38,29,.58);display:flex;align-items:center;justify-content:center;padding:14px}
-.meal-picker-dialog{width:min(560px,100%);max-height:min(90dvh,760px);display:flex;flex-direction:column;gap:12px;background:#fff;border:1px solid var(--line);border-radius:18px;padding:17px;box-shadow:0 20px 70px rgba(0,0,0,.22);overflow:hidden}
-.meal-picker-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+/* Weekly picker: conservative viewport sizing for older Android WebView */
+.meal-picker-overlay{position:fixed;inset:0;z-index:10000;background:rgba(18,38,29,.58);display:flex;align-items:center;justify-content:center;padding:10px;overflow:hidden;touch-action:pan-y}
+.meal-picker-dialog{box-sizing:border-box;width:100%;max-width:560px;height:auto;max-height:calc(100vh - 20px);display:flex;flex-direction:column;gap:10px;background:#fff;border:1px solid var(--line);border-radius:18px;padding:14px;box-shadow:0 20px 70px rgba(0,0,0,.22);overflow:hidden;min-height:0}
+.meal-picker-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex:0 0 auto}
 .meal-picker-head h3{margin:0 0 5px;color:var(--green);font-size:16px}
 .meal-picker-head small{display:block;color:var(--muted);font-size:11px;line-height:1.8}
-.meal-picker-close{flex:0 0 36px;width:36px;height:36px;border:1px solid var(--line);border-radius:10px;background:#f7faf7;color:var(--green);font-size:24px}
-.meal-picker-search{width:100%;min-height:44px;border:1px solid #dce8df;border-radius:10px;padding:9px 12px;background:#fbfdfb}
-.meal-picker-results{min-height:100px;max-height:48dvh;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;display:grid;align-content:start;gap:7px;padding:2px 3px}
-.meal-picker-option{width:100%;min-height:45px;display:flex;align-items:center;gap:10px;text-align:right;border:1px solid var(--line);border-radius:10px;background:#fff;padding:9px 11px;color:var(--ink)}
+.meal-picker-close{flex:0 0 40px;width:40px;height:40px;border:1px solid var(--line);border-radius:10px;background:#f7faf7;color:var(--green);font-size:24px;touch-action:manipulation}
+.meal-picker-search{box-sizing:border-box;width:100%;flex:0 0 auto;min-height:44px;border:1px solid #dce8df;border-radius:10px;padding:9px 12px;background:#fbfdfb}
+.meal-picker-results{box-sizing:border-box;flex:1 1 auto;min-height:0;height:auto;max-height:none;overflow-y:scroll;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;display:grid;align-content:start;gap:7px;padding:2px 3px}
+.meal-picker-option{width:100%;min-height:45px;display:flex;align-items:center;gap:10px;text-align:right;border:1px solid var(--line);border-radius:10px;background:#fff;padding:9px 11px;color:var(--ink);touch-action:manipulation}
 .meal-picker-option:active,.meal-picker-option:focus{background:var(--green-soft);border-color:#a9d3b8}
 .meal-picker-option-number{flex:0 0 28px;height:28px;display:grid;place-items:center;border-radius:8px;background:var(--green-soft);color:var(--green);font-size:11px;font-weight:700}
 .meal-picker-option-arrow{margin-right:auto;color:var(--green);font-size:10px;white-space:nowrap}
 .meal-picker-empty{padding:18px;text-align:center;color:var(--muted);font-size:12px}
-.meal-picker-number{display:grid;grid-template-columns:auto minmax(90px,130px) 1fr auto;align-items:center;gap:9px;padding-top:11px;border-top:1px solid var(--line)}
+.meal-picker-number{display:grid;grid-template-columns:auto minmax(70px,110px) 1fr auto;align-items:center;gap:8px;padding-top:10px;border-top:1px solid var(--line);flex:0 0 auto}
 .meal-picker-number label{font-size:11px;color:var(--ink)}
-.meal-picker-number input{width:100%;min-width:0;min-height:42px;border:1px solid #dce8df;border-radius:9px;padding:8px 10px;direction:ltr;text-align:center;font-variant-numeric:tabular-nums}
+.meal-picker-number input{box-sizing:border-box;width:100%;min-width:0;min-height:42px;border:1px solid #dce8df;border-radius:9px;padding:8px 10px;direction:ltr;text-align:center;font-variant-numeric:tabular-nums}
 .meal-picker-number small{font-size:10px;color:var(--muted);line-height:1.7}
-.meal-picker-number .primary-btn{white-space:nowrap}
-@media(max-width:520px){.meal-picker-overlay{padding:8px;align-items:flex-end}.meal-picker-dialog{max-height:92dvh;border-radius:18px 18px 12px 12px;padding:13px}.meal-picker-results{max-height:43dvh}.meal-picker-number{grid-template-columns:1fr 1fr}.meal-picker-number small{grid-column:1/-1;grid-row:2}.meal-picker-number .primary-btn{grid-column:1/-1;width:100%}}
+.meal-picker-number .primary-btn{white-space:nowrap;touch-action:manipulation}
+@media(max-width:520px){.meal-picker-overlay{padding:6px;align-items:center}.meal-picker-dialog{max-height:calc(100vh - 12px);border-radius:16px;padding:11px;gap:8px}.meal-picker-results{min-height:80px}.meal-picker-number{grid-template-columns:1fr 1fr}.meal-picker-number small{grid-column:1/-1;grid-row:2}.meal-picker-number .primary-btn{grid-column:1/-1;width:100%}}
 /* ورودی‌های عددی در موبایل و WebView قابل لمس و ویرایش باشند */
 input[type=number]{min-width:0;touch-action:manipulation}
