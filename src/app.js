@@ -50,21 +50,24 @@ function renderWeek(){const inputDate=isoFromJalali($('#weekStart')?.value);if(i
 function openWeeklyRecipePicker(date,meal){
  const previous=document.getElementById('weeklyRecipePicker');if(previous)previous.remove();
  const overlay=document.createElement('div');overlay.id='weeklyRecipePicker';overlay.className='meal-picker-overlay';overlay.setAttribute('role','presentation');
+ const current=state.weekly[date]?.[meal]||'';
+ const options=recipes.map(r=>`<option value="${escapeHtml(r.id)}" ${r.id===current?'selected':''}>${escapeHtml((r.emoji||'🍽️')+' '+r.name)}</option>`).join('');
  overlay.innerHTML=`<section class="meal-picker-dialog" role="dialog" aria-modal="true" aria-labelledby="mealPickerTitle">
-  <div class="meal-picker-head"><div><h3 id="mealPickerTitle">انتخاب غذا برای ${escapeHtml(meal)}</h3><small>نام غذا را جستجو کنید، از فهرست انتخاب کنید یا شماره آن را وارد کنید.</small></div><button type="button" class="meal-picker-close" aria-label="بستن">×</button></div>
-  <input id="mealPickerSearch" class="meal-picker-search" type="search" placeholder="جستجوی نام غذا..." autocomplete="off">
-  <div id="mealPickerResults" class="meal-picker-results" role="listbox" aria-label="فهرست غذاها"></div>
-  <div class="meal-picker-number"><label for="mealPickerNumber">شماره غذا</label><input id="mealPickerNumber" type="number" min="0" max="${recipes.length}" step="1" inputmode="numeric" placeholder="۰ تا ${recipes.length}"><small>شماره ۰ برای خالی‌کردن این وعده است.</small><button type="button" class="primary-btn" id="mealPickerApply">ثبت انتخاب</button></div>
+  <div class="meal-picker-head"><div><h3 id="mealPickerTitle">انتخاب غذا برای ${escapeHtml(meal)}</h3><small>فهرست کشویی را باز کنید و با حرکت انگشت غذای دلخواه را انتخاب کنید.</small></div><button type="button" class="meal-picker-close" aria-label="بستن">×</button></div>
+  <label class="meal-picker-select-label" for="mealPickerSelect">غذای موردنظر</label>
+  <select id="mealPickerSelect" class="meal-picker-select">
+   <option value="">— انتخاب غذا —</option>${options}
+  </select>
+  <div class="meal-picker-actions"><button type="button" class="secondary-btn" id="mealPickerClear">خالی‌کردن وعده</button><button type="button" class="primary-btn" id="mealPickerApply">ثبت انتخاب</button></div>
  </section>`;
  document.body.appendChild(overlay);
- const close=()=>overlay.remove(),search=overlay.querySelector('#mealPickerSearch'),results=overlay.querySelector('#mealPickerResults'),number=overlay.querySelector('#mealPickerNumber');
- const apply=n=>{if(!Number.isInteger(n)||n<0||n>recipes.length){notify('شماره واردشده معتبر نیست.');number.focus();return}if(!state.weekly[date])state.weekly[date]={};state.weekly[date][meal]=n===0?'':recipes[n-1].id;saveState();close();renderWeek();renderDashboard()};
- const render=()=>{const q=search.value.trim().toLocaleLowerCase('fa');const matches=recipes.map((r,i)=>({r,i})).filter(x=>!q||x.r.name.toLocaleLowerCase('fa').includes(q));results.innerHTML=matches.length?matches.map(({r,i})=>`<button type="button" class="meal-picker-option" data-recipe-number="${i+1}" role="option"><span class="meal-picker-option-number">${fa(i+1)}</span><span>${r.emoji||'🍽️'} ${escapeHtml(r.name)}</span><span class="meal-picker-option-arrow">انتخاب ←</span></button>`).join(''):'<p class="meal-picker-empty">غذایی با این نام پیدا نشد.</p>';};
- render();search.addEventListener('input',render);results.addEventListener('click',e=>{const b=e.target.closest('[data-recipe-number]');if(b)apply(Number(b.dataset.recipeNumber))});
- overlay.querySelector('.meal-picker-close').addEventListener('click',close);overlay.addEventListener('click',e=>{if(e.target===overlay)close()});
- overlay.querySelector('#mealPickerApply').addEventListener('click',()=>apply(Number(number.value)));
- number.addEventListener('keydown',e=>{if(e.key==='Enter')apply(Number(number.value))});
- overlay.addEventListener('keydown',e=>{if(e.key==='Escape')close()});search.focus();
+ const close=()=>overlay.remove(),select=overlay.querySelector('#mealPickerSelect');
+ const apply=()=>{const id=select.value;if(id&&!recipes.some(r=>r.id===id)){notify('غذای انتخاب‌شده معتبر نیست.');return}if(!state.weekly[date])state.weekly[date]={};state.weekly[date][meal]=id;saveState();close();renderWeek();renderDashboard()};
+ overlay.querySelector('.meal-picker-close').addEventListener('click',close);
+ overlay.querySelector('#mealPickerApply').addEventListener('click',apply);
+ overlay.querySelector('#mealPickerClear').addEventListener('click',()=>{select.value='';apply()});
+ overlay.addEventListener('click',e=>{if(e.target===overlay)close()});
+ overlay.addEventListener('keydown',e=>{if(e.key==='Escape')close()});
 }
 function weeklyMissingToShopping(){const used=new Set(),added=[];Object.values(state.weekly||{}).forEach(day=>Object.values(day||{}).forEach(raw=>{const r=recipeForMeal(raw);if(!r)return;const match=inventoryMatchForRecipe(r);match.missing.forEach(i=>{const key=normalizedIngredient(i[0]);if(used.has(key))return;used.add(key);const exists=state.shopping.some(x=>normalizedIngredient(x.name)===key&&!x.done);if(!exists){state.shopping.push({id:uid(),name:i[0],qty:`${i[1]} ${i[2]}`,category:guessShopCategory(i[0]),price:0,done:false,source:'weekly',recipeName:r.name,createdAt:isoToday()});added.push(i[0])}})}));if(!added.length){notify('ماده کسری جدیدی پیدا نشد؛ موجودی و برنامه هفتگی را بررسی کنید.');return}saveState();renderShopping();notify(`${fa(added.length)} قلم کسری به فهرست خرید اضافه شد.`);showView('shopping')}
 function weeklyPlanText(){const start=isoToJalaliInput(state.weekStart)||state.weekStart;let lines=[`🍽️ برنامه غذایی هفتگی غذایار`,`هفته از ${start}`,''];DAYS.forEach((day,i)=>{const values=state.weekly[dayKey(i)]||{};const items=MEALS.filter(m=>values[m]).map(m=>{const raw=values[m],r=recipeForMeal(raw);return `${m}: ${r?.name||(String(raw).startsWith('snack:')?String(raw).slice(6):'')}`});lines.push(`${day}:`,...(items.length?items.map(x=>'• '+x):['• هنوز برنامه‌ای ثبت نشده']), '')});return lines.join('\n')}
