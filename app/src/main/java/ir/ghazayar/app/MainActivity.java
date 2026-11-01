@@ -1,6 +1,7 @@
 package ir.ghazayar.app;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.webkit.*;
 import android.content.*;
@@ -128,7 +129,14 @@ public class MainActivity extends Activity {
     @Override public void onBackPressed() {
         if (webView != null) {
             webView.evaluateJavascript("(function(){return window.GhazayarHandleBack ? window.GhazayarHandleBack() : false})()", value -> {
-                if ("false".equals(value) || value == null) finish();
+                if ("false".equals(value) || value == null) {
+                    new AlertDialog.Builder(MainActivity.this)
+                        .setTitle("خروج از غذایار")
+                        .setMessage("آیا مطمئن هستید که می‌خواهید از برنامه خارج شوید؟")
+                        .setNegativeButton("ادامه برنامه", (dialog, which) -> dialog.dismiss())
+                        .setPositiveButton("خروج", (dialog, which) -> finish())
+                        .show();
+                }
             });
         } else super.onBackPressed();
     }
