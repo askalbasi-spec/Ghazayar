@@ -117,3 +117,16 @@ button,input,select,textarea{font-size:16px}
 .recipe-card h3,.day-head,.panel h3{font-size:18px}
 small,.caption,.recipe-card small{font-size:13px}
 .week-meal-select{min-height:48px;padding:10px}
+
+html{font-size:18px}
+body{font-size:18px!important;line-height:1.9}
+body :is(p,li,label,small,.muted,.hint,.eyebrow,.today-label,.nav-item,.side-label,.section-heading,.page-title p,.toolbar label,.form-grid label,.meal-row label,.week-meal-select,.recipe-card p,.recipe-card small,.recipe-meta,.empty-state,.selected-item,.saved-row,.shopping-row,.family-card p,.report-card,.recipe-dialog-content){font-size:16px!important;line-height:1.9!important}
+body :is(h1,h2,h3,h4,.page-title h1,.panel h3,.recipe-card h3){font-size:clamp(19px,1.25em,28px)!important;line-height:1.6!important}
+body :is(input,select,textarea,button){font-size:17px!important;min-height:44px}
+body .icon-btn{min-width:46px;min-height:46px;font-size:18px!important}
+body .topbar .brand b{font-size:20px!important}
+body .topbar .brand small{font-size:14px!important}
+body .recipe-dialog-content ol li,body .recipe-dialog-content ul li{font-size:17px!important;line-height:2!important;margin-bottom:9px}
+body .week-meal-select{min-height:54px!important}
+.backup-action{padding:8px 12px!important;min-width:unset!important;border-radius:10px!important;background:#e8f4eb!important;color:#176b55!important;font-weight:700!important;white-space:nowrap}
+@media(max-width:520px){html{font-size:19px}body :is(p,li,label,small,.muted,.hint,.nav-item,.meal-row label,.recipe-card p,.recipe-meta){font-size:16px!important}body :is(input,select,textarea,button){font-size:17px!important}}
