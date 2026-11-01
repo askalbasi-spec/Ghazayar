@@ -108,3 +108,12 @@
 @media(max-width:520px){.meal-picker-overlay{padding:6px;align-items:center}.meal-picker-dialog{max-height:calc(100vh - 12px);border-radius:16px;padding:11px;gap:8px}.meal-picker-results{min-height:80px}.meal-picker-number{grid-template-columns:1fr 1fr}.meal-picker-number small{grid-column:1/-1;grid-row:2}.meal-picker-number .primary-btn{grid-column:1/-1;width:100%}}
 /* ورودی‌های عددی در موبایل و WebView قابل لمس و ویرایش باشند */
 input[type=number]{min-width:0;touch-action:manipulation}
+
+/* افزایش خوانایی عمومی در موبایل و وب‌ویو */
+body{font-size:16px}
+button,input,select,textarea{font-size:16px}
+.topbar,.sidebar,.nav-item,.page-title p,.hint,.muted,.eyebrow,.today-label{font-size:14px}
+.recipe-card p,.recipe-card li,.recipe-dialog-content li,.meal-row label,.week-meal-select,.week-day-summary,.form-grid label,.panel label{font-size:15px;line-height:1.9}
+.recipe-card h3,.day-head,.panel h3{font-size:18px}
+small,.caption,.recipe-card small{font-size:13px}
+.week-meal-select{min-height:48px;padding:10px}
