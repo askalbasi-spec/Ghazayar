@@ -11,11 +11,15 @@ import android.print.PrintManager;
 import android.print.PrintAttributes;
 import android.print.PrintDocumentAdapter;
 import android.graphics.Color;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 
 public class MainActivity extends Activity {
     private WebView webView;
     private ValueCallback<Uri[]> uploadMessage;
     private static final int FILE_CHOOSER_REQUEST = 1001;
+    private static final int BACKUP_SAVE_REQUEST = 1002;
+    private String pendingBackupContent = null;
 
     @Override public void onCreate(Bundle b) {
         super.onCreate(b);
@@ -28,6 +32,17 @@ public class MainActivity extends Activity {
         s.setAllowContentAccess(true);
         webView.setWebViewClient(new WebViewClient());
         webView.addJavascriptInterface(new Object() {
+            @JavascriptInterface public void saveBackup(String filename, String content) {
+                runOnUiThread(() -> {
+                    pendingBackupContent = content;
+                    Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+                    intent.addCategory(Intent.CATEGORY_OPENABLE);
+                    intent.setType("application/json");
+                    intent.putExtra(Intent.EXTRA_TITLE, filename);
+                    try { startActivityForResult(intent, BACKUP_SAVE_REQUEST); }
+                    catch (Exception e) { pendingBackupContent = null; Toast.makeText(MainActivity.this, "انتخاب محل ذخیره ممکن نشد", Toast.LENGTH_SHORT).show(); }
+                });
+            }
             @JavascriptInterface public void shareText(String text) {
                 runOnUiThread(() -> {
                     Intent send = new Intent(Intent.ACTION_SEND);
@@ -95,6 +110,17 @@ public class MainActivity extends Activity {
         if (r == FILE_CHOOSER_REQUEST && uploadMessage != null) {
             uploadMessage.onReceiveValue(WebChromeClient.FileChooserParams.parseResult(c, d));
             uploadMessage = null;
+        } else if (r == BACKUP_SAVE_REQUEST) {
+            if (c == RESULT_OK && d != null && d.getData() != null && pendingBackupContent != null) {
+                try (OutputStream out = getContentResolver().openOutputStream(d.getData())) {
+                    if (out == null) throw new Exception("No output stream");
+                    out.write(pendingBackupContent.getBytes(StandardCharsets.UTF_8));
+                    Toast.makeText(this, "فایل پشتیبان ذخیره شد", Toast.LENGTH_LONG).show();
+                } catch (Exception e) {
+                    Toast.makeText(this, "ذخیره فایل پشتیبان ناموفق بود", Toast.LENGTH_LONG).show();
+                }
+            }
+            pendingBackupContent = null;
         }
     }
     @Override protected void onSaveInstanceState(Bundle b) { webView.saveState(b); super.onSaveInstanceState(b); }
