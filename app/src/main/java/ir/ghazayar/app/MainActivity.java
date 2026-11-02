@@ -13,6 +13,8 @@ import android.print.PrintAttributes;
 import android.print.PrintDocumentAdapter;
 import android.graphics.Color;
 import java.io.OutputStream;
+import java.io.InputStream;
+import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 
 public class MainActivity extends Activity {
@@ -20,6 +22,7 @@ public class MainActivity extends Activity {
     private ValueCallback<Uri[]> uploadMessage;
     private static final int FILE_CHOOSER_REQUEST = 1001;
     private static final int BACKUP_SAVE_REQUEST = 1002;
+    private static final int BACKUP_OPEN_REQUEST = 1003;
     private String pendingBackupContent = null;
 
     @Override public void onCreate(Bundle b) {
@@ -42,6 +45,18 @@ public class MainActivity extends Activity {
                     intent.putExtra(Intent.EXTRA_TITLE, filename);
                     try { startActivityForResult(intent, BACKUP_SAVE_REQUEST); }
                     catch (Exception e) { pendingBackupContent = null; webView.evaluateJavascript("window.GhazayarBackupResult && window.GhazayarBackupResult(false)", null); }
+                });
+            }
+            @JavascriptInterface public void openBackup() {
+                runOnUiThread(() -> {
+                    Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                    intent.addCategory(Intent.CATEGORY_OPENABLE);
+                    intent.setType("application/json");
+                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    try { startActivityForResult(intent, BACKUP_OPEN_REQUEST); }
+                    catch (Exception e) {
+                        Toast.makeText(MainActivity.this, "انتخاب فایل پشتیبان ممکن نشد", Toast.LENGTH_SHORT).show();
+                    }
                 });
             }
             @JavascriptInterface public void shareText(String text) {
@@ -119,6 +134,24 @@ public class MainActivity extends Activity {
         if (r == FILE_CHOOSER_REQUEST && uploadMessage != null) {
             uploadMessage.onReceiveValue(WebChromeClient.FileChooserParams.parseResult(c, d));
             uploadMessage = null;
+        } else if (r == BACKUP_OPEN_REQUEST) {
+            if (c == RESULT_OK && d != null && d.getData() != null) {
+                try (InputStream in = getContentResolver().openInputStream(d.getData());
+                     ByteArrayOutputStream buffer = new ByteArrayOutputStream()) {
+                    if (in == null) throw new Exception("No input stream");
+                    byte[] chunk = new byte[8192];
+                    int count;
+                    while ((count = in.read(chunk)) != -1) buffer.write(chunk, 0, count);
+                    String content = buffer.toString("UTF-8");
+                    String script = "window.GhazayarRestoreFromNative && window.GhazayarRestoreFromNative("
+                        + org.json.JSONObject.quote(content) + ")";
+                    if (webView != null) webView.post(() -> webView.evaluateJavascript(script, null));
+                } catch (Exception e) {
+                    android.util.Log.e("GhazayarBackup", "Backup read failed", e);
+                    if (webView != null) webView.post(() ->
+                        webView.evaluateJavascript("window.GhazayarRestoreFromNative && window.GhazayarRestoreFromNative('')", null));
+                }
+            }
         } else if (r == BACKUP_SAVE_REQUEST) {
             boolean saved = false;
             if (c == RESULT_OK && d != null && d.getData() != null && pendingBackupContent != null) {
