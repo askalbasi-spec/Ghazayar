@@ -198,7 +198,11 @@ public class MainActivity extends Activity {
     }
     @Override protected void onResume() {
         super.onResume();
-        if (webView != null) { webView.onResume(); webView.resumeTimers(); }
+        // Android print preview is a separate system activity. When it closes,
+        // this Activity resumes; release the temporary print WebView here and
+        // keep the original application WebView alive and visible.
+        if (printPreviewLaunched && activePrintWebView != null) cleanupPrintWebView();
+        if (webView != null) { webView.onResume(); webView.resumeTimers(); webView.requestFocus(); }
     }
     @Override protected void onPause() {
         if (webView != null) webView.onPause();
