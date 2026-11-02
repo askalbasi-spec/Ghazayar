@@ -64,6 +64,14 @@ public class MainActivity extends Activity {
             }
         }, "GhazayarNative");
         webView.setWebChromeClient(new WebChromeClient() {
+            @Override public boolean onConsoleMessage(ConsoleMessage message) {
+                String detail = message.message() + " ("
+                    + message.sourceId() + ":" + message.lineNumber() + ") [" + message.messageLevel() + "]";
+                android.util.Log.e("GhazayarWebView", detail);
+                webView.evaluateJavascript("window.GhazayarConsoleDiagnostic && window.GhazayarConsoleDiagnostic("
+                    + org.json.JSONObject.quote(detail) + ")", null);
+                return true;
+            }
             @Override public boolean onShowFileChooser(WebView v, ValueCallback<Uri[]> cb, FileChooserParams p) {
                 if (uploadMessage != null) uploadMessage.onReceiveValue(null);
                 uploadMessage = cb;
