@@ -204,9 +204,6 @@ public class MainActivity extends Activity {
         // keep the original application WebView alive and visible.
         if (printPreviewLaunched && activePrintWebView != null) {
             cleanupPrintWebView();
-            // Keep a short return window: some Android print providers dispatch
-            // the preview's Back event after this Activity has already resumed.
-            printPreviewReturnAt = android.os.SystemClock.elapsedRealtime();
         }
         if (webView != null) { webView.onResume(); webView.resumeTimers(); webView.requestFocus(); }
     }
@@ -221,7 +218,6 @@ public class MainActivity extends Activity {
     }
     @Override protected void onSaveInstanceState(Bundle b) { if (webView != null) webView.saveState(b); super.onSaveInstanceState(b); }
     @Override public void onBackPressed() {
-        if (printPreviewReturnAt > 0L && android.os.SystemClock.elapsedRealtime() - printPreviewReturnAt < 1800L) return;
         if (printPreviewLaunched && activePrintWebView != null) {
             cleanupPrintWebView();
             if (webView != null) { webView.onResume(); webView.resumeTimers(); }
