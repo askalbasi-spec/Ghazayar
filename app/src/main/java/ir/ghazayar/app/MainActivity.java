@@ -199,7 +199,6 @@ public class MainActivity extends Activity {
     @Override protected void onResume() {
         super.onResume();
         if (webView != null) { webView.onResume(); webView.resumeTimers(); }
-        if (printPreviewLaunched || activePrintWebView != null) cleanupPrintWebView();
     }
     @Override protected void onPause() {
         if (webView != null) webView.onPause();
@@ -212,6 +211,11 @@ public class MainActivity extends Activity {
     }
     @Override protected void onSaveInstanceState(Bundle b) { webView.saveState(b); super.onSaveInstanceState(b); }
     @Override public void onBackPressed() {
+        if (printPreviewLaunched && activePrintWebView != null) {
+            cleanupPrintWebView();
+            if (webView != null) { webView.onResume(); webView.resumeTimers(); }
+            return;
+        }
         if (webView != null) {
             webView.evaluateJavascript("(function(){return window.GhazayarHandleBack ? window.GhazayarHandleBack() : false})()", value -> {
                 if ("false".equals(value) || value == null) {
