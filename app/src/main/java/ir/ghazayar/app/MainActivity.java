@@ -19,6 +19,8 @@ import java.nio.charset.StandardCharsets;
 
 public class MainActivity extends Activity {
     private WebView webView;
+    private WebView activePrintWebView;
+    private boolean printPreviewLaunched = false;
     private ValueCallback<Uri[]> uploadMessage;
     private static final int FILE_CHOOSER_REQUEST = 1001;
     private static final int BACKUP_SAVE_REQUEST = 1002;
@@ -99,11 +101,18 @@ public class MainActivity extends Activity {
     }
 
     private void printReportNative(String title, String body) {
+        if (activePrintWebView != null) {
+            activePrintWebView.stopLoading();
+            activePrintWebView.destroy();
+            activePrintWebView = null;
+        }
+        printPreviewLaunched = false;
         WebView printView = new WebView(this);
+        activePrintWebView = printView;
         String html = "<!doctype html><html lang='fa' dir='rtl'><head><meta charset='utf-8'><style>" +
             "*{box-sizing:border-box}body{font-family:sans-serif;color:#20382e;line-height:2;padding:22px}" +
             ".head{background:#176b55;color:white;padding:22px;border-radius:12px;margin-bottom:20px}" +
-            "h1{font-size:24px;margin:0;color:white}h2{font-size:17px;color:#eafff0;margin:4px 0}" +
+            "h1{font-size:24px;margin:0;color:white}h2{font-size:17px;color:#176b55;margin:12px 0 4px}" +
             "table{width:100%;border-collapse:collapse;margin:14px 0}th,td{border:1px solid #cfdcd3;padding:8px;text-align:right}" +
             "th{background:#eaf4ed;color:#176b55}.weekly-print-table{table-layout:fixed}.weekly-print-table td:first-child{width:28%;font-weight:bold;color:#176b55}" +
             "@page{size:A4;margin:14mm}</style></head><body><div class='head'><h1>غذایار</h1><h2>" + escapeHtml(title) +
@@ -112,15 +121,19 @@ public class MainActivity extends Activity {
         printView.getSettings().setJavaScriptEnabled(false);
         printView.setWebViewClient(new WebViewClient() {
             @Override public void onPageFinished(WebView view, String url) {
+                if (printPreviewLaunched || activePrintWebView != view) return;
                 PrintManager manager = (PrintManager)getSystemService(Context.PRINT_SERVICE);
-                if (manager != null) {
-                    String jobName = (title == null || title.trim().isEmpty()) ? "Ghazayar-Report" : title;
-                    PrintDocumentAdapter adapter = view.createPrintDocumentAdapter(jobName);
-                    manager.print(jobName, adapter, new PrintAttributes.Builder()
-                        .setMediaSize(PrintAttributes.MediaSize.ISO_A4)
-                        .setResolution(new PrintAttributes.Resolution("ghazayar", "Ghazayar", 300, 300))
-                        .setMinMargins(PrintAttributes.Margins.NO_MARGINS).build());
+                if (manager == null) {
+                    Toast.makeText(MainActivity.this, "سرویس چاپ در دسترس نیست", Toast.LENGTH_LONG).show();
+                    return;
                 }
+                printPreviewLaunched = true;
+                String jobName = (title == null || title.trim().isEmpty()) ? "Ghazayar-Report" : title;
+                PrintDocumentAdapter adapter = view.createPrintDocumentAdapter(jobName);
+                manager.print(jobName, adapter, new PrintAttributes.Builder()
+                    .setMediaSize(PrintAttributes.MediaSize.ISO_A4)
+                    .setResolution(new PrintAttributes.Resolution("ghazayar", "Ghazayar", 300, 300))
+                    .setMinMargins(PrintAttributes.Margins.NO_MARGINS).build());
             }
         });
         printView.loadDataWithBaseURL("https://ghazayar.local/", html, "text/html", "UTF-8", null);
@@ -168,6 +181,16 @@ public class MainActivity extends Activity {
             final boolean result = saved;
             if (webView != null) webView.post(() ->
                 webView.evaluateJavascript("window.GhazayarBackupResult && window.GhazayarBackupResult(" + result + ")", null));
+        }
+    }
+    @Override protected void onResume() {
+        super.onResume();
+        if (printPreviewLaunched && activePrintWebView != null) {
+            WebView finishedPrintView = activePrintWebView;
+            activePrintWebView = null;
+            printPreviewLaunched = false;
+            finishedPrintView.stopLoading();
+            finishedPrintView.destroy();
         }
     }
     @Override protected void onSaveInstanceState(Bundle b) { webView.saveState(b); super.onSaveInstanceState(b); }

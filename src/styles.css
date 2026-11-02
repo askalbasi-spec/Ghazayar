@@ -130,3 +130,8 @@ body .recipe-dialog-content ol li,body .recipe-dialog-content ul li{font-size:17
 body .week-meal-select{min-height:54px!important}
 .backup-action{padding:8px 12px!important;min-width:unset!important;border-radius:10px!important;background:#e8f4eb!important;color:#176b55!important;font-weight:700!important;white-space:nowrap}
 @media(max-width:520px){html{font-size:19px}body :is(p,li,label,small,.muted,.hint,.nav-item,.meal-row label,.recipe-card p,.recipe-meta){font-size:16px!important}body :is(input,select,textarea,button){font-size:17px!important}}
+
+/* فعال‌بودن و دسترس‌پذیری کارت‌های پایین داشبورد در لمس موبایل */
+.quick-card{cursor:pointer;touch-action:manipulation;pointer-events:auto;min-height:118px}
+.quick-grid{width:100%;min-width:0}
+@media(max-width:700px){.quick-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.quick-card{min-width:0;min-height:126px;padding:14px}.quick-card b,.quick-card small{overflow-wrap:anywhere}}
