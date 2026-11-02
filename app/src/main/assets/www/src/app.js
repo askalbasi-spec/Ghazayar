@@ -1,7 +1,8 @@
 'use strict';
-window.addEventListener('error',function(e){showRuntimeDiagnostic((e.message||'خطای ناشناخته')+' '+(e.filename||'')+':'+(e.lineno||''),'خطای اجرای برنامه')});
+function showRuntimeDiagnostic(error,label='خطای برنامه'){try{let n=document.getElementById('ghazayarRuntimeError');if(!n){n=document.createElement('div');n.id='ghazayarRuntimeError';n.style.cssText='position:fixed;z-index:2147483647;top:6px;left:6px;right:6px;max-height:45vh;overflow:auto;background:#fff0f0;color:#8b1d1d;border:2px solid #b3261e;border-radius:8px;padding:10px;font:13px monospace;direction:rtl;white-space:pre-wrap;text-align:left';document.body.appendChild(n)}n.textContent=label+': '+String(error?.stack||error?.message||error||'خطای ناشناخته');}catch(_){ }}
+window.addEventListener('error',function(e){showRuntimeDiagnostic({message:e.message,stack:e.error?.stack,filename:e.filename,line:e.lineno,column:e.colno},'خطای اجرای برنامه')});
 window.addEventListener('unhandledrejection',function(e){showRuntimeDiagnostic(e.reason,'خطای داخلی برنامه')});
-function showRuntimeDiagnostic(error,label='خطای برنامه'){try{let n=document.getElementById('ghazayarRuntimeError');if(!n){n=document.createElement('div');n.id='ghazayarRuntimeError';n.style.cssText='position:fixed;z-index:2147483647;top:6px;left:6px;right:6px;background:#fff0f0;color:#8b1d1d;border:2px solid #b3261e;border-radius:8px;padding:10px;font:14px sans-serif;direction:rtl;white-space:pre-wrap';document.body.appendChild(n)}n.textContent=label+': '+String(error?.message||error||'خطای ناشناخته');}catch(_){}}
+window.GhazayarConsoleDiagnostic=function(message){showRuntimeDiagnostic(message,'گزارش کنسول WebView')};
 const $ = (s, r=document) => r.querySelector(s);
 const $$ = (s, r=document) => [...r.querySelectorAll(s)];
 const fa = n => Number(n||0).toLocaleString('fa-IR');
