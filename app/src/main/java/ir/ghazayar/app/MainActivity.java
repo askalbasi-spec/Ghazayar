@@ -21,7 +21,7 @@ public class MainActivity extends Activity {
     private WebView webView;
     private WebView activePrintWebView;
     private boolean printPreviewLaunched = false;
-    private boolean suppressBackAfterPrintReturn = false;
+    private long printPreviewReturnAt = 0L;
     private ValueCallback<Uri[]> uploadMessage;
     private static final int FILE_CHOOSER_REQUEST = 1001;
     private static final int BACKUP_SAVE_REQUEST = 1002;
@@ -204,9 +204,9 @@ public class MainActivity extends Activity {
         // keep the original application WebView alive and visible.
         if (printPreviewLaunched && activePrintWebView != null) {
             cleanupPrintWebView();
-            // The Android print UI may deliver a Back event while returning to this Activity.
-            // Consume that one event instead of treating it as an app-exit request.
-            suppressBackAfterPrintReturn = true;
+            // Keep a short return window: some Android print providers dispatch
+            // the preview's Back event after this Activity has already resumed.
+            printPreviewReturnAt = android.os.SystemClock.elapsedRealtime();
         }
         if (webView != null) { webView.onResume(); webView.resumeTimers(); webView.requestFocus(); }
     }
@@ -219,9 +219,9 @@ public class MainActivity extends Activity {
         if (webView != null) { webView.stopLoading(); webView.destroy(); webView = null; }
         super.onDestroy();
     }
-    @Override protected void onSaveInstanceState(Bundle b) { webView.saveState(b); super.onSaveInstanceState(b); }
+    @Override protected void onSaveInstanceState(Bundle b) { if (webView != null) webView.saveState(b); super.onSaveInstanceState(b); }
     @Override public void onBackPressed() {
-        if (suppressBackAfterPrintReturn) { suppressBackAfterPrintReturn = false; return; }
+        if (printPreviewReturnAt > 0L && android.os.SystemClock.elapsedRealtime() - printPreviewReturnAt < 1800L) return;
         if (printPreviewLaunched && activePrintWebView != null) {
             cleanupPrintWebView();
             if (webView != null) { webView.onResume(); webView.resumeTimers(); }
