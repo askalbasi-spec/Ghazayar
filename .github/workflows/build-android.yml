@@ -30,6 +30,12 @@ jobs:
           printf '%s' "$KEYSTORE_BASE64" | base64 --decode > app/release-keystore.jks
           test -s app/release-keystore.jks
 
+      - name: Validate JavaScript and Android asset sync
+        run: |
+          set -euo pipefail
+          node --check src/app.js
+          cmp -s src/app.js app/src/main/assets/www/src/app.js
+
       - name: Build debug and signed release APKs
         uses: gradle/gradle-build-action@v3
         env:
