@@ -21,6 +21,7 @@ public class MainActivity extends Activity {
     private WebView webView;
     private WebView activePrintWebView;
     private boolean printPreviewLaunched = false;
+    private boolean suppressBackAfterPrintReturn = false;
     private ValueCallback<Uri[]> uploadMessage;
     private static final int FILE_CHOOSER_REQUEST = 1001;
     private static final int BACKUP_SAVE_REQUEST = 1002;
@@ -201,7 +202,12 @@ public class MainActivity extends Activity {
         // Android print preview is a separate system activity. When it closes,
         // this Activity resumes; release the temporary print WebView here and
         // keep the original application WebView alive and visible.
-        if (printPreviewLaunched && activePrintWebView != null) cleanupPrintWebView();
+        if (printPreviewLaunched && activePrintWebView != null) {
+            cleanupPrintWebView();
+            // The Android print UI may deliver a Back event while returning to this Activity.
+            // Consume that one event instead of treating it as an app-exit request.
+            suppressBackAfterPrintReturn = true;
+        }
         if (webView != null) { webView.onResume(); webView.resumeTimers(); webView.requestFocus(); }
     }
     @Override protected void onPause() {
@@ -215,6 +221,7 @@ public class MainActivity extends Activity {
     }
     @Override protected void onSaveInstanceState(Bundle b) { webView.saveState(b); super.onSaveInstanceState(b); }
     @Override public void onBackPressed() {
+        if (suppressBackAfterPrintReturn) { suppressBackAfterPrintReturn = false; return; }
         if (printPreviewLaunched && activePrintWebView != null) {
             cleanupPrintWebView();
             if (webView != null) { webView.onResume(); webView.resumeTimers(); }
