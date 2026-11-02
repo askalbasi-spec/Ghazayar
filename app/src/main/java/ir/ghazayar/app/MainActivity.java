@@ -120,17 +120,21 @@ public class MainActivity extends Activity {
             uploadMessage.onReceiveValue(WebChromeClient.FileChooserParams.parseResult(c, d));
             uploadMessage = null;
         } else if (r == BACKUP_SAVE_REQUEST) {
+            boolean saved = false;
             if (c == RESULT_OK && d != null && d.getData() != null && pendingBackupContent != null) {
-                try (OutputStream out = getContentResolver().openOutputStream(d.getData())) {
+                try (OutputStream out = getContentResolver().openOutputStream(d.getData(), "wt")) {
                     if (out == null) throw new Exception("No output stream");
                     out.write(pendingBackupContent.getBytes(StandardCharsets.UTF_8));
-                    webView.evaluateJavascript("window.GhazayarBackupResult && window.GhazayarBackupResult(true)", null);
+                    out.flush();
+                    saved = true;
                 } catch (Exception e) {
-                    webView.evaluateJavascript("window.GhazayarBackupResult && window.GhazayarBackupResult(false)", null);
+                    android.util.Log.e("GhazayarBackup", "Backup write failed", e);
                 }
             }
-            if (c != RESULT_OK) webView.evaluateJavascript("window.GhazayarBackupResult && window.GhazayarBackupResult(false)", null);
             pendingBackupContent = null;
+            final boolean result = saved;
+            if (webView != null) webView.post(() ->
+                webView.evaluateJavascript("window.GhazayarBackupResult && window.GhazayarBackupResult(" + result + ")", null));
         }
     }
     @Override protected void onSaveInstanceState(Bundle b) { webView.saveState(b); super.onSaveInstanceState(b); }
