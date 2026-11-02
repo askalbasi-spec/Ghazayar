@@ -101,11 +101,7 @@ public class MainActivity extends Activity {
     }
 
     private void printReportNative(String title, String body) {
-        if (activePrintWebView != null) {
-            activePrintWebView.stopLoading();
-            activePrintWebView.destroy();
-            activePrintWebView = null;
-        }
+        cleanupPrintWebView();
         printPreviewLaunched = false;
         WebView printView = new WebView(this);
         activePrintWebView = printView;
@@ -125,18 +121,35 @@ public class MainActivity extends Activity {
                 PrintManager manager = (PrintManager)getSystemService(Context.PRINT_SERVICE);
                 if (manager == null) {
                     Toast.makeText(MainActivity.this, "سرویس چاپ در دسترس نیست", Toast.LENGTH_LONG).show();
+                    cleanupPrintWebView();
                     return;
                 }
                 printPreviewLaunched = true;
                 String jobName = (title == null || title.trim().isEmpty()) ? "Ghazayar-Report" : title;
                 PrintDocumentAdapter adapter = view.createPrintDocumentAdapter(jobName);
-                manager.print(jobName, adapter, new PrintAttributes.Builder()
-                    .setMediaSize(PrintAttributes.MediaSize.ISO_A4)
-                    .setResolution(new PrintAttributes.Resolution("ghazayar", "Ghazayar", 300, 300))
-                    .setMinMargins(PrintAttributes.Margins.NO_MARGINS).build());
+                try {
+                    manager.print(jobName, adapter, new PrintAttributes.Builder()
+                        .setMediaSize(PrintAttributes.MediaSize.ISO_A4)
+                        .setResolution(new PrintAttributes.Resolution("ghazayar", "Ghazayar", 300, 300))
+                        .setMinMargins(PrintAttributes.Margins.NO_MARGINS).build());
+                } catch (Exception e) {
+                    android.util.Log.e("GhazayarPrint", "Unable to open print preview", e);
+                    Toast.makeText(MainActivity.this, "بازکردن پیش‌نمایش PDF ممکن نشد", Toast.LENGTH_LONG).show();
+                    cleanupPrintWebView();
+                }
             }
         });
         printView.loadDataWithBaseURL("https://ghazayar.local/", html, "text/html", "UTF-8", null);
+    }
+    private void cleanupPrintWebView() {
+        WebView finished = activePrintWebView;
+        activePrintWebView = null;
+        printPreviewLaunched = false;
+        if (finished != null) {
+            finished.stopLoading();
+            finished.setWebViewClient(null);
+            finished.destroy();
+        }
     }
     private String escapeHtml(String value) {
         if (value == null) return "";
@@ -185,13 +198,17 @@ public class MainActivity extends Activity {
     }
     @Override protected void onResume() {
         super.onResume();
-        if (printPreviewLaunched && activePrintWebView != null) {
-            WebView finishedPrintView = activePrintWebView;
-            activePrintWebView = null;
-            printPreviewLaunched = false;
-            finishedPrintView.stopLoading();
-            finishedPrintView.destroy();
-        }
+        if (webView != null) { webView.onResume(); webView.resumeTimers(); }
+        if (printPreviewLaunched || activePrintWebView != null) cleanupPrintWebView();
+    }
+    @Override protected void onPause() {
+        if (webView != null) webView.onPause();
+        super.onPause();
+    }
+    @Override protected void onDestroy() {
+        cleanupPrintWebView();
+        if (webView != null) { webView.stopLoading(); webView.destroy(); webView = null; }
+        super.onDestroy();
     }
     @Override protected void onSaveInstanceState(Bundle b) { webView.saveState(b); super.onSaveInstanceState(b); }
     @Override public void onBackPressed() {
